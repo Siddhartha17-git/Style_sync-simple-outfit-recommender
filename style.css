@@ -1,0 +1,96 @@
+/* Adjusted CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background: url('back\ home.jpg') no-repeat center center fixed;
+    background-size: cover;
+    text-align: center;
+    padding: 50px;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    width: 40%;
+    margin: auto;
+}
+
+/* Centering logo in the middle of the screen */
+.logo {
+    background: url('home.jpg') no-repeat absolute;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;  /* Full viewport height */
+    position: relative;
+    top: center;  /* Moved the logo slightly upward */
+}
+
+.logo-frame {
+    background: white;
+    padding: 30px; /* Reduced padding to fit better */
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo img {
+    width: 415px; /* Decreased width */
+    height: 655px; /* Decreased height */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    padding-left: 90px;
+    padding-right: 65px;
+    padding-bottom: 255px;
+    padding-top: 40px;
+
+}
+
+.logo img:hover {
+    transform: scale(1.045);
+}
+
+select, button {
+    margin: 10px;
+    padding: 10px;
+    width: 80%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #ff7eb3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease-in-out;
+}
+
+button:hover {
+    background: #ff5277;
+}
+
+.result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.outfit-img {
+    width: 200px;
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

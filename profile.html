@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <div class="profile-modal">
+        <div class="modal-header">
+            <h2>User Profile</h2>
+            <button class="close-btn" onclick="location.href='chat.html'">&times;</button>
+        </div>
+
+        <div class="profile-content">
+            <section class="personal-info">
+                <h3>Personal Information</h3>
+                <div class="info-field">
+                    <label>Username</label>
+                    <div class="input-with-button">
+                        <input type="text" id="username" readonly>
+                        <button onclick="enableEdit()" class="edit-btn">Edit</button>
+                        <button onclick="saveChanges()" id="saveBtn" class="save-btn" style="display: none;">Save</button>
+                    </div>
+                </div>
+
+                <div class="info-field">
+                    <label>Email</label>
+                    <input type="email" id="email" readonly>
+                </div>
+
+                <div class="info-field">
+                    <label>Password</label>
+                    <div class="input-with-button">
+                        <input type="password" id="newPassword" placeholder="Enter new password">
+                        <button onclick="changePassword()" class="pink-btn">Update</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="recommendation-history">
+                <h3>Recommendation History</h3>
+                <div id="history-list" class="history-list">
+                    <!-- History will be populated here -->
+                </div>
+            </section>
+        </div>
+
+        <div class="modal-footer">
+            <button onclick="location.href='chat.html'" class="secondary-btn">Back to Home</button>
+            <button onclick="logout()" class="pink-btn">Logout</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem('user_id');
+        const messageElement = document.getElementById('message');
+
+        window.onload = function() {
+            if (!userId) {
+                window.location.href = 'new.html';
+                return;
+            }
+            loadProfile();
+        };
+
+        function loadProfile() {
+            fetch(`http://localhost:5000/profile/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('username').value = data.username;
+                    document.getElementById('email').value = data.email;
+                    
+                    // Update history
+                    const historyList = document.getElementById('history-list');
+                    historyList.innerHTML = '';
+                    if (data.history && data.history.length > 0) {
+                        data.history.forEach(item => {
+                            const historyItem = document.createElement('div');
+                            historyItem.className = 'history-item';
+                            const date = new Date(item.timestamp).toLocaleDateString();
+                            historyItem.innerHTML = `
+                                <span class="history-date">${date}</span>
+                                <span class="history-action">${item.action}</span>
+                            `;
+                            historyList.appendChild(historyItem);
+                        });
+                    } else {
+                        historyList.innerHTML = '<div class="no-history">No recommendation history yet</div>';
+                    }
+                })
+                .catch(error => {
+                    showMessage('Error loading profile', 'error');
+                });
+        }
+
+        function enableEdit() {
+            const usernameInput = document.getElementById('username');
+            usernameInput.readOnly = false;
+            usernameInput.focus();
+            document.getElementById('saveBtn').style.display = 'inline-block';
+        }
+
+        function saveChanges() {
+            const newUsername = document.getElementById('username').value;
+            
+            fetch(`http://localhost:5000/profile/update/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: newUsername
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showMessage('Username updated successfully', 'success');
+                    document.getElementById('username').readOnly = true;
+                    document.getElementById('saveBtn').style.display = 'none';
+                    loadProfile();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error updating username', 'error');
+            });
+        }
+
+        function changePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            
+            if (!newPassword) {
+                showMessage('Please enter a new password', 'error');
+                return;
+            }
+
+            fetch(`http://localhost:5000/profile/update-password/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    new_password: newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showMessage('Password updated successfully', 'success');
+                    document.getElementById('newPassword').value = '';
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error updating password', 'error');
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('user_id');
+            window.location.href = 'new.html';
+        }
+
+        function showMessage(message, type) {
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            setTimeout(() => {
+                messageElement.textContent = '';
+                messageElement.className = 'message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Outfit Recommender</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: url('back home.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+        .header {
+            padding: 10px 20px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end;
+            background: none;  /* Remove the dark background */
+        }
+        .user-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .profile-btn, .logout-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            transition: all 0.3s ease;
+        }
+        .profile-btn:hover, .logout-btn:hover {
+            background: white;
+            color: black;
+        }
+        .container {
+            margin-top: 60px;  /* Add margin to prevent content from being hidden under the fixed header */
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 20px auto;
+            color: #333;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff4081;
+        }
+        select, button, input[type='color'] {
+            margin-top: 15px;
+            padding: 12px;
+            width: 100%;
+            border: 2px solid #ff4081;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s ease-in-out;
+        }
+        select:hover, button:hover {
+            background-color: #ff4081;
+            color: white;
+            cursor: pointer;
+        }
+        button {
+            font-weight: bold;
+            background: #ff4081;
+            color: white;
+        }
+        .color-picker {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .color-picker label {
+            flex: 1;
+            text-align: left;
+        }
+        .color-picker input[type='color'] {
+            flex: 2;
+            height: 40px;
+            cursor: pointer;
+        }
+        /* Add styles for skin tone buttons */
+        .skin-tone-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        .skin-tone-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ff4081;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .skin-tone-btn:hover {
+            transform: scale(1.1);
+        }
+        .skin-tone-btn.selected {
+            border: 3px solid #333;
+            transform: scale(1.1);
+        }
+        .skin-tone-label {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #333;
+        }
+        .skin-tone-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #outfit-image {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            display: none;
+        }
+        .recommendation {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            display: none;
+        }
+        /* Add styles for multiple recommendations */
+        #recommendations-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .outfit-item {
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            margin: 10px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .outfit-item h4 {
+            color: #ff4081;
+            margin-bottom: 10px;
+        }
+        .outfit-item img {
+            margin-bottom: 10px;
+        }
+        .outfit-item p {
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Profile Controls -->
+    <div class="header">
+        <div class="user-controls">
+            <button class="profile-btn" onclick="location.href='profile.html'">View Profile</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <label for="weather">Select Weather:</label>
+        <select id="weather">
+            <option value="sunny">Sunny</option>
+            <option value="rainy">Rainy</option>
+            <option value="cold">Cold</option>
+        </select>
+
+        <label for="gender">Select Gender:</label>
+        <select id="gender">
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+        </select>
+
+        <label for="skin">Select Skin Tone:</label>
+        <div class="skin-tone-buttons">
+            <div class="skin-tone-container">
+                <button class="skin-tone-btn" style="background-color: #FFDFC4;" onclick="selectSkinTone('#FFDFC4', this)" title="Fair/Light"></button>
+                <span class="skin-tone-label">Fair/Light</span>
+            </div>
+            <div class="skin-tone-container">
+                <button class="skin-tone-btn" style="background-color: #F0D5BE;" onclick="selectSkinTone('#F0D5BE', this)" title="Light/Medium"></button>
+                <span class="skin-tone-label">Light/Medium</span>
+            </div>
+            <div class="skin-tone-container">
+                <button class="skin-tone-btn" style="background-color: #D1A17B;" onclick="selectSkinTone('#D1A17B', this)" title="Medium/Tan"></button>
+                <span class="skin-tone-label">Medium/Tan</span>
+            </div>
+            <div class="skin-tone-container">
+                <button class="skin-tone-btn" style="background-color: #B97C6D;" onclick="selectSkinTone('#B97C6D', this)" title="Olive"></button>
+                <span class="skin-tone-label">Olive</span>
+            </div>
+            <div class="skin-tone-container">
+                <button class="skin-tone-btn" style="background-color: #8D5524;" onclick="selectSkinTone('#8D5524', this)" title="Brown"></button>
+                <span class="skin-tone-label">Brown</span>
+            </div>
+        </div>
+        <div class="color-picker">
+            <label for="skin">Custom Skin Tone (Hex):</label>
+            <input type="color" id="skin" value="#f4c2c2" onchange="updateCustomSkinTone(this.value)">
+        </div>
+
+        <label for="body_type">Select Body Type:</label>
+        <select id="body_type">
+            <option value="slim">Slim</option>
+            <option value="average">Average</option>
+            <option value="athletic">Athletic</option>
+            <option value="plus-size">Plus Size</option>
+        </select>
+
+        <label for="occasion">Select Occasion:</label>
+        <select id="occasion">
+            <option value="casual">Casual</option>
+            <option value="formal">Formal</option>
+            <option value="party">Party</option>
+        </select>
+
+        <label for="hair_type">Select Hair Type:</label>
+        <select id="hair_type">
+            <option value="straight">Straight</option>
+            <option value="wavy">Wavy</option>
+            <option value="curly">Curly</option>
+            <option value="short">Short</option>
+        </select>
+
+        <label for="style">Select Style:</label>
+        <select id="style">
+            <option value="classic">Classic</option>
+            <option value="bohemian">Bohemian</option>
+            <option value="streetwear">Streetwear</option>
+            <option value="formal">Formal</option>
+        </select>
+
+        <button onclick="recommendOutfit()">Get Recommendation</button>
+        
+        <div class="recommendation" id="recommendation">
+            <h3>Recommended Outfits</h3>
+            <div id="recommendations-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        window.onload = function() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                window.location.href = 'new.html';
+                return;
+            }
+        };
+
+        async function recommendOutfit() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                alert('Please login first');
+                window.location.href = 'new.html';
+                return;
+            }
+
+            const userInput = {
+                weather: document.getElementById("weather").value,
+                gender: document.getElementById("gender").value,
+                skin_tone: document.getElementById("skin").value,
+                body_type: document.getElementById("body_type").value,
+                occasion: document.getElementById("occasion").value,
+                hair_type: document.getElementById("hair_type").value,
+                style: document.getElementById("style").value
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-User-ID': userId
+                    },
+                    body: JSON.stringify(userInput)
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success' && data.recommendations && data.recommendations.length > 0) {
+                    const recommendationsContainer = document.getElementById("recommendations-container");
+                    const recommendationDiv = document.getElementById("recommendation");
+                    
+                    recommendationsContainer.innerHTML = '';
+                    
+                    data.recommendations.forEach((recommendation, index) => {
+                        const outfitDiv = document.createElement('div');
+                        outfitDiv.className = 'outfit-item';
+                        outfitDiv.innerHTML = `
+                            <h4>Option ${index + 1}</h4>
+                            <img src="http://localhost:5000/outfit_images/${recommendation.outfit_id}${parseInt(recommendation.outfit_id.split('_')[1]) > 2 ? '.jpeg' : '.jpg'}" 
+                                 alt="Outfit Option ${index + 1}" 
+                                 onerror="this.src='lastbg.jpeg'"
+                                 style="width: 100%; max-width: 300px; border-radius: 10px;">
+                            <p>${recommendation.description}</p>
+                        `;
+                        recommendationsContainer.appendChild(outfitDiv);
+                    });
+                    
+                    recommendationDiv.style.display = "block";
+                } else {
+                    alert(data.message || 'No recommendations found. Please try different preferences.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error getting recommendations. Please try again.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
+            window.location.href = 'new.html';
+        }
+
+        // Add these functions at the beginning of your script section
+        function selectSkinTone(color, button) {
+            // Remove selected class from all buttons
+            document.querySelectorAll('.skin-tone-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked button
+            button.classList.add('selected');
+            
+            // Update the color picker
+            document.getElementById('skin').value = color;
+        }
+
+        function updateCustomSkinTone(value) {
+            // Remove selected class from all buttons when custom color is selected
+            document.querySelectorAll('.skin-tone-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        }
+    </script>
+</body>
+</html>

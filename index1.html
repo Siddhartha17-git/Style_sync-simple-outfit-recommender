@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style Sync</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="logo">
+        <img src="home.jpg" alt="Style Sync Logo" onclick="location.href='signup.html'">
+    </div>
+
+    <script>
+    async function recommendOutfit() {
+        const userInput = {
+            weather: document.getElementById("weather").value,
+            occasion: document.getElementById("occasion").value,
+            skin_tone: document.getElementById("skin").value,
+            hair_type: document.getElementById("hair").value,
+            style: document.getElementById("personality").value,
+            gender: "female",  // Add a gender selector to your HTML or hardcode as needed
+            body_type: "average"  // Add a body type selector to your HTML or hardcode as needed
+        };
+
+        try {
+            const response = await fetch('http://localhost:5000/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userInput)
+            });
+            
+            const data = await response.json();
+            if (data.status === 'success') {
+                // Display the recommended outfit
+                const outfitImage = document.getElementById("outfit-image");
+                if (data.recommendations.length > 0) {
+                    outfitImage.src = `images/${data.recommendations[0].outfit_id}.jpg`;
+                    outfitImage.style.display = "block";
+                }
+            } else {
+                console.error('Error:', data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    </script>
+</body>
+</html>
+

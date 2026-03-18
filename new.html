@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="new.css">
+    <style>
+        /* Button Styling */
+        button {
+            width: 350px;
+            height: 35px;
+            background-color: rgb(255, 255, 255); /* White Button */
+            color: black; /* Black Text */
+            padding: 12px 20px;
+            border: none;
+            border-radius: 0px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+
+        /* Text Styling */
+        h2 {
+            color: #ffffff; /* Pinkish Color for Login Title */
+        }
+
+        p {
+            color: #ffffff; /* White color for messages */
+        }
+
+        input {
+            width: 350px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        /* Centering the form */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            bottom: 50px; /* Moves everything towards the bottom */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+        }
+
+        /* Login button between input fields */
+        .login-btn {
+            margin-top: 0px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <h2>Login</h2>
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <p id="login-message"></p>
+        <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+        <button onclick="location.href='index1.html'">Back to Home</button>
+    </div>
+
+    <script>
+        function login() {
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+            const messageElement = document.getElementById("login-message");
+
+            if (!email || !password) {
+                messageElement.textContent = "Please fill in all fields.";
+                messageElement.style.color = "red";
+                return;
+            }
+
+            // Send login request to backend
+            fetch('http://localhost:5000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Login successful') {
+                    // Store user ID and username in localStorage
+                    localStorage.setItem('user_id', data.user_id);
+                    localStorage.setItem('username', data.username);
+                    
+                    messageElement.textContent = "Login successful! Redirecting...";
+                    messageElement.style.color = "white";
+                    
+                    // Redirect to chat page instead of profile
+                    setTimeout(() => {
+                        window.location.href = "chat.html";
+                    }, 1500);
+                } else {
+                    messageElement.textContent = data.error || "Invalid email or password.";
+                    messageElement.style.color = "red";
+                }
+            })
+            .catch(error => {
+                messageElement.textContent = "An error occurred during login.";
+                messageElement.style.color = "red";
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

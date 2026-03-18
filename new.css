@@ -1,0 +1,47 @@
+/* Updated login.css with login and signup styled like the first image */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+.login-page {
+    background: url('2nd\ pic\ with\ logo.JPEG') no-repeat center center fixed;
+    background-size: cover; /* Ensures the background fully covers the page */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.logo {
+    max-width: 300px; /* Adjust logo size if necessary */
+    margin-bottom: 50px; /* Space between logo and buttons */
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+
+button {
+    width: 150px;
+    padding: 12px;
+    border-radius: 25px; /* Rounded buttons like in the image */
+    border: none;
+    background: #ff7eb3;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background:grey;
+}
