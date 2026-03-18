@@ -147,10 +147,6 @@ http://localhost:5000
 
 ---
 
-## License
-
-MIT License
-
 ---
 
 ## Acknowledgments
